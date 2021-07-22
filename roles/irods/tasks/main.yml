@@ -1,3 +1,9 @@
 - name: import iRODS PPAs
   import_tasks: ubuntu.yml
-  when ansible_facts['os_family']|lower == 'ubuntu'
+  when: ansible_facts['distribution'] == 'Ubuntu'
+  register: version
+
+- name: Print os version
+  ansible.builtin.debug:
+    msg: '{{ version }}'
+  when: version is defined

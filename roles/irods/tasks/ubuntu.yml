@@ -5,10 +5,10 @@
 
 - name: Add source repository into sources list
   ansible.builtin.apt_repository:
-    repo: deb [arch=amd64] https://packages.irods.org/apt/dists/bionic main
+    repo: deb [arch=amd64] https://packages.irods.org/apt/ bionic main
     state: present
 
-- name: Install postgresql and postgresql-contrib + pip3
+- name: Install irods-server and irods-database-plugin-postgres
   apt:
     pkg:
     - irods-server
