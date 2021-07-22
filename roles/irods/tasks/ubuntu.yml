@@ -8,7 +8,9 @@
     repo: deb [arch=amd64] https://packages.irods.org/apt/dists/bionic main
     state: present
 
-- name: Run apt-get update
+- name: Install postgresql and postgresql-contrib + pip3
   apt:
+    pkg:
+    - irods-server
+    - irods-database-plugin-postgres
     update_cache: yes
-
