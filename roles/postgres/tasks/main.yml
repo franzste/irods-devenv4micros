@@ -6,6 +6,7 @@
     - python3-pip
     - libpq-dev
     update_cache: yes
+    upgrade: yes
 
 - name: pip install setuptools
   pip:

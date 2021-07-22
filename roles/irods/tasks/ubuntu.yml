@@ -14,3 +14,4 @@
     - irods-server
     - irods-database-plugin-postgres
     update_cache: yes
+    ugrade: yes
