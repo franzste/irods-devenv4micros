@@ -1,0 +1,79 @@
+- name: Run apt-get update
+  apt:
+    update_cache: yes
+
+- name: Install postgresql and postgresql-contrib + pip3
+  apt:
+    pkg:
+    - postgresql
+    - postgresql-contrib
+    - python3-pip
+
+- name: pip install setuptools
+  pip:
+    name: setuptools
+
+- name: pip install required python lib for posgresql automation
+  pip:
+    name: psycopg2
+
+- name: "Find out if PostgreSQL is initialized"
+  ansible.builtin.stat:
+    path: "/var/lib/postgresql/data/pg_hba.conf"
+  register: postgres_data
+  become_user: postgres
+
+- name: Print the gateway for each host when defined
+  ansible.builtin.debug:
+    msg: '{{ postgres_data }}'
+  when: postgres_data is defined
+
+
+- name: "Initialize PostgreSQL"
+  #shell: "postgresql-setup initdb"
+  shell: "/usr/lib/postgresql/10/bin/initdb -D /var/lib/postgresql/data"
+  when: not postgres_data.stat.exists
+  become_user: postgres
+ 
+- name: Start service postgresql, if not started
+  ansible.builtin.service:
+    name: postgresql
+    state: started
+    enabled: yes
+
+- name: "Create app database"
+  community.postgresql.postgresql_db:
+    state: present
+    name: "{{ db_name }}"
+  become: yes
+  become_user: postgres
+
+- name: "Create db user"
+  community.postgresql.postgresql_user:
+    state: present
+    name: "{{ db_user }}"
+    password: "{{ db_password }}"
+  become: yes
+  become_user: postgres
+
+- name: "Grant db user access to app db"
+  community.postgresql.postgresql_privs:
+    type: database
+    database: "{{ db_name }}"
+    roles: "{{ db_user }}"
+    grant_option: no
+    privs: all
+  become: yes
+  become_user: postgres
+
+- name: pg_hba.conf deployment for allowing md5 connections
+  community.postgresql.postgresql_pg_hba:
+    dest: "/var/lib/postgresql/data/pg_hba.conf"
+    databases: all
+    contype: host
+    method: md5
+    users: "{{ db_user }}"
+    create: true
+  become: yes
+  become_user: postgres
+  notify: restart postgresql

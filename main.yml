@@ -1,0 +1,7 @@
+---
+  - name: Deploy iRODS
+    hosts: appserver
+    become: yes
+    become_user: root
+    roles:
+      - postgres
